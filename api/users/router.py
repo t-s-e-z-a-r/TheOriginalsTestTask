@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy import or_
 from database.config import get_async_session
 from database.models import User
 from .schemas import UserCreate, UserResponse, UserUpdate
@@ -16,7 +17,9 @@ async def register(
 ):
     async with db as session:
         result = await session.execute(
-            select(User).where(User.username == user_data.username)
+            select(User).where(
+                or_(User.username == user_data.username, User.email == user_data.email)
+            )
         )
         user = result.scalars().first()
 
@@ -31,6 +34,7 @@ async def register(
             username=user_data.username,
             email=user_data.email,
             hashed_password=hashed_password,
+            role=user_data.role,
         )
         db.add(new_user)
         await db.commit()
@@ -70,17 +74,17 @@ async def update_user(
         result = await session.execute(select(User).where(User.id == user_id))
         user = result.scalar_one_or_none()
 
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found",
-        )
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found",
+            )
 
-    user.role = user_update.role
+        user.role = user_update.role
 
-    await db.commit()
-    await db.refresh(user)
-    return user
+        await session.commit()
+        await session.refresh(user)
+        return user
 
 
 @user_router.delete("/{user_id}")

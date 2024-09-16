@@ -7,15 +7,17 @@ class UserCreate(BaseModel):
     username: str
     email: EmailStr
     password: str
+    role: Optional[UserRole] = UserRole.WATCHER
 
 
 class UserResponse(BaseModel):
     id: int
     username: str
     email: EmailStr
+    role: UserRole
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class UserUpdate(BaseModel):

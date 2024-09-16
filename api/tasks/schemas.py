@@ -1,40 +1,37 @@
 from pydantic import BaseModel
 from typing import List, Optional
 
-
-class UserCreate(BaseModel):
-    username: str
-    email: str
-    password: str
-
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
+from database.models import PriorityEnum, StatusEnum
+from api.users.schemas import UserResponse
 
 
 class TaskSchema(BaseModel):
     id: int
     title: Optional[str] = None
     description: Optional[str] = None
-    priority: Optional[int] = None
-    assignee: Optional[int] = None
+    priority: PriorityEnum
+    assignee_id: Optional[int] = None
     status: str
+    executors: Optional[List[UserResponse]] = []
 
 
 class TaskStatusUpdate(BaseModel):
-    status: str
+    status: StatusEnum
 
 
 class TaskUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
-    priority: Optional[int] = None
-    assignee: Optional[int] = None
+    priority: Optional[PriorityEnum] = None
+    assignee_id: Optional[int] = None
 
 
 class TaskCreate(BaseModel):
     title: str
     description: str
-    priority: Optional[int] = None
-    assignee: Optional[int] = None
+    priority: Optional[PriorityEnum] = None
+    assignee_id: Optional[int] = None
+
+
+class TaskExecutorsCreate(BaseModel):
+    user_ids: List[int]

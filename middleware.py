@@ -4,6 +4,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from database.models import UserRole
 from typing import List, Dict
 from tools import verify_token, CREDENTIAL_EXCEPTION
+from celery_app.worker import _send_email
 
 ROLE_ENDPOINT_RULES: Dict[UserRole, Dict[str, List[str]]] = {
     UserRole.ADMIN: {
@@ -17,6 +18,8 @@ ROLE_ENDPOINT_RULES: Dict[UserRole, Dict[str, List[str]]] = {
 
 EXCLUDED_PATHS = [
     "/auth/login",
+    "/docs",
+    "/openapi.json",
 ]
 
 
@@ -63,7 +66,7 @@ class RoleMiddleware(BaseHTTPMiddleware):
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail="You don't have permission to access this resource",
                 )
-
+            request.state.user = user.user_id
             response = await call_next(request)
             return response
 
@@ -73,8 +76,8 @@ class RoleMiddleware(BaseHTTPMiddleware):
                 content={"detail": exc.detail},
             )
 
-        except Exception as exc:
-            return JSONResponse(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                content={"detail": "Internal Server Error"},
-            )
+        # except Exception as exc:
+        #     return JSONResponse(
+        #         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        #         content={"detail": "Internal Server Error"},
+        #     )

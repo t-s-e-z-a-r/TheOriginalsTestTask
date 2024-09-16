@@ -17,15 +17,22 @@ class StatusEnum(enum.Enum):
     DONE = "Done"
 
 
+class PriorityEnum(enum.Enum):
+    LOW = "Low"
+    MEDIUM = "Medium"
+    HIGH = "High"
+
+
 class Task(Base):
     __tablename__ = "tasks"
 
     id = Column(Integer, primary_key=True)
     title = Column(String, index=True)
     description = Column(String)
-    assignee = Column(Integer, ForeignKey("users.id"), index=True)
+    assignee_id = Column(Integer, ForeignKey("users.id"), index=True)
     status = Column(Enum(StatusEnum), default=StatusEnum.TODO)
-    priority = Column(Integer)
+    priority = Column(Enum(PriorityEnum), default=PriorityEnum.LOW)
+    assignee = relationship("User", foreign_keys=[assignee_id])
     executors = relationship(
         "User", secondary=task_executors_association, back_populates="tasks"
     )
