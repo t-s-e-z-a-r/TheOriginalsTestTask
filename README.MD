@@ -4,9 +4,9 @@ This is a simple Task Management Application that allows users to manage tasks a
 Running the Application
 To start the application, run the following command:
 
-'''
+```
 docker-compose up -d
-'''
+```
 
 Email Setup
 To enable email notifications for task status changes, make sure you update the following environment variables in the .env file:
