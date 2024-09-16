@@ -8,6 +8,8 @@ To start the application, run the following command:
 docker-compose up -d
 ```
 
+After that, you can open your browser and navigate to `http://localhost/docs` to see all the available APIs.
+
 ## Email Setup
 To enable email notifications for task status changes, make sure you update the following environment variables in the .env file:
 
